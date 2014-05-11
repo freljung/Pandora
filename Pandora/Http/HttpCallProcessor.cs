@@ -61,9 +61,10 @@ namespace Pandora.Http
             _socketWrapper = socketWrapper;
             _socketWrapper.SkipByteCount(_verbLength + 1);
 
-            var httpCall = new HttpCall() { ServerSettings = ServerSettings };
-            httpCall.RequestHeader = GetHeaderFromSocket();
-            httpCall.RawRequestBody = GetRequestBodyFromSocket();
+            var httpCall = new HttpCall() { 
+                ServerSettings = ServerSettings,
+                RequestHeader = GetHeaderFromSocket(),
+                RawRequestBody = GetRequestBodyFromSocket() };
 
             return _firstCallResponder.Respond(httpCall);
         }
@@ -154,14 +155,6 @@ namespace Pandora.Http
                 if (uri.EndsWith(fileEnding))
                     return true;
             }
-
-            return false;
-            if (uri.Contains(".html?") || uri.Contains(".htm?"))
-                return true;
-
-            var uriEnd = uri.Substring(uri.Length - 5);
-            if (uriEnd.Contains(".html") || uriEnd.Contains(".htm"))
-                return true;
 
             return false;
         }
