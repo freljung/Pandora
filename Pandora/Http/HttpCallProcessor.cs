@@ -39,6 +39,8 @@ namespace Pandora.Http
 
     public abstract class HttpCallProcessor : IHttpCallProcessor
     {
+        public ServerSettings ServerSettings { get; set; }
+
         abstract public string Method { get; }
         abstract protected int _verbLength { get; }
         abstract protected int MaximumRequestSize { get; }
@@ -59,14 +61,14 @@ namespace Pandora.Http
             _socketWrapper = socketWrapper;
             _socketWrapper.SkipByteCount(_verbLength + 1);
 
-            var httpCall = new HttpCall();
-            httpCall.RequestHeader = GetHeaderFromSocket(socketWrapper);
-            httpCall.RawRequestBody = GetRequestBodyFromSocket(socketWrapper);
+            var httpCall = new HttpCall() { ServerSettings = ServerSettings };
+            httpCall.RequestHeader = GetHeaderFromSocket();
+            httpCall.RawRequestBody = GetRequestBodyFromSocket();
 
             return _firstCallResponder.Respond(httpCall);
         }
 
-        private HttpRequestHeader GetHeaderFromSocket(INetworkStreamWrapper socketWrapper)
+        private HttpRequestHeader GetHeaderFromSocket()
         {
             var buffer = new byte[_headerParser.MaximumHeaderLength];
             _socketWrapper.Peek(buffer);
@@ -94,14 +96,14 @@ namespace Pandora.Http
             }
         }
 
-        virtual protected byte[] GetRequestBodyFromSocket(INetworkStreamWrapper socketWrapper)
+        virtual protected byte[] GetRequestBodyFromSocket()
         {
-            if (socketWrapper.DataAvailable == false)
+            if (_socketWrapper.DataAvailable == false)
                 return new byte[0];
 
             var returnBuffer = new byte[TypicalRequestSize];
             int currentPosition = 0;
-            while (socketWrapper.DataAvailable)
+            while (_socketWrapper.DataAvailable)
             {
                 if (currentPosition > 0)
                     Array.Resize(ref returnBuffer, currentPosition + TypicalRequestSize);
@@ -110,22 +112,77 @@ namespace Pandora.Http
             }
             return returnBuffer;
         }
+
     }
 
-    public static class ArrayExtensions
+    public class StaticFileResponder : HttpCallResponderBase, IHttpGetCallResponder
     {
-        public static void Append<T>(ref T[] source, T entity)
+        public List<string> StaticFileEndings { get; set; }
+
+        public StaticFileResponder()
         {
-            Array.Resize(ref source, source.Length + 1);
-            source[source.Length - 1] = entity;
+            StaticFileEndings = new List<string>();
         }
 
-        public static void Prepend<T>(ref T[] source, T entity)
+        public void RegisterFileEnding(string fileEnding)
         {
-            Array.Reverse(source);
-            Append(ref source, entity);
-            Array.Reverse(source);
+            StaticFileEndings.Add(fileEnding);
+        }
+
+        public void RegisterFileEnding(IEnumerable<string> fileEndings)
+        {
+            StaticFileEndings.AddRange(fileEndings);
+        }
+
+        protected override bool WillRespond(HttpCall call)
+        {
+            return CallIsToStaticFile(call);
+        }
+
+        protected override IHttpResponse InternalRespond(HttpCall call)
+        {
+            
+            throw new NotImplementedException();
+        }
+
+        protected virtual bool CallIsToStaticFile(HttpCall call)
+        {
+            var uri = call.RequestHeader.Uri;
+
+            foreach (var fileEnding in StaticFileEndings)
+            {
+                if (uri.EndsWith(fileEnding))
+                    return true;
+            }
+
+            return false;
+            if (uri.Contains(".html?") || uri.Contains(".htm?"))
+                return true;
+
+            var uriEnd = uri.Substring(uri.Length - 5);
+            if (uriEnd.Contains(".html") || uriEnd.Contains(".htm"))
+                return true;
+
+            return false;
         }
     }
 
+    public class StaticHtmlResponder : StaticFileResponder
+    {
+        public StaticHtmlResponder()
+        {
+            StaticFileEndings.Add(".html");
+            StaticFileEndings.Add(".htm");
+        }
+
+        protected override bool CallIsToStaticFile(HttpCall call)
+        {
+            // TODO: fix case insetive comparisons
+            var uri = call.RequestHeader.Uri;
+            if (uri.Contains(".html?") || uri.Contains(".htm?"))
+                return true;
+
+            return base.CallIsToStaticFile(call);
+        }
+    }
 }

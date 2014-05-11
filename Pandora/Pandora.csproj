@@ -54,8 +54,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Http\ExceptionResponseHandler.cs" />
     <Compile Include="Http\HttpBadRequestResponse.cs" />
+    <Compile Include="Http\HttpCall.cs" />
     <Compile Include="Http\HttpDefaultResponder.cs" />
     <Compile Include="Http\HttpExceptionResponseBase.cs" />
     <Compile Include="Http\HttpGetCallParser.cs" />
@@ -65,17 +67,22 @@
     <Compile Include="Http\HttpHeader.cs" />
     <Compile Include="Http\HttpHeaderParser.cs" />
     <Compile Include="Http\HttpNotImplementedResponse.cs" />
+    <Compile Include="Http\HttpRequestHeader.cs" />
     <Compile Include="Http\HttpResponse.cs" />
-    <Compile Include="Http\IExceptionResponseHandler.cs" />
-    <Compile Include="Http\IHttpCallController.cs" />
-    <Compile Include="Http\IHttpCallProcessor.cs" />
-    <Compile Include="Http\IHttpExceptionResponse.cs" />
-    <Compile Include="Http\IHttpHeaderParser.cs" />
-    <Compile Include="Http\IHttpResponse.cs" />
+    <Compile Include="Http\HttpResponseHeader.cs" />
+    <Compile Include="Http\Interfaces\IExceptionResponseHandler.cs" />
+    <Compile Include="Http\Interfaces\IHttpCallController.cs" />
+    <Compile Include="Http\Interfaces\IHttpCallProcessor.cs" />
+    <Compile Include="Http\Interfaces\IHttpExceptionResponse.cs" />
+    <Compile Include="Http\Interfaces\IHttpHeaderParser.cs" />
+    <Compile Include="Http\Interfaces\IHttpResponse.cs" />
+    <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="ISocketListener.cs" />
     <Compile Include="INetworkStreamWrapper.cs" />
     <Compile Include="ListenerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerSettings.cs" />
     <Compile Include="SocketListener.cs" />
     <Compile Include="NetworkStreamWrapper.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />

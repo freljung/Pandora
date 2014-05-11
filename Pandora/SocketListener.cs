@@ -12,6 +12,7 @@ namespace Pandora
     public class SocketListener : ISocketListener
     {
         public IObservable<Socket> IncomingRequests { get; private set; }
+        public ServerSettings ServerSettings { get; set; }
 
         private IHttpCallController _callController;
         private TcpListener _listener;
@@ -26,6 +27,7 @@ namespace Pandora
 
             foreach (var callProcessor in callProcessors)
             {
+                callProcessor.ServerSettings = ServerSettings;
                 callController.RegisterCallProcessor(callProcessor);
             }
         }

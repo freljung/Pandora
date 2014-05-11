@@ -9,6 +9,7 @@ namespace Pandora
     public class WebServer
     {
         internal ISocketListener _listener;
+        internal ServerSettings _settings;
 
         internal static void RegisterInstances()
         {
@@ -37,11 +38,14 @@ namespace Pandora
                 throw new Exception("Only one SocketListener is currently supported.");
 
             _listener = ObjectFactory.GetInstance<ISocketListener>();
+            _listener.ServerSettings = _settings;
         }
 
-        public void Setup()
+        public void Setup(string applicationPath)
         {
             RegisterInstances();
+
+            PopulateSettings(applicationPath);
 
             CreateListener();
         }
@@ -57,6 +61,15 @@ namespace Pandora
         public void Stop()
         {
             _listener.Stop();
+        }
+
+        private void PopulateSettings(string applicationPath)
+        {
+            _settings = new ServerSettings()
+            {
+                ApplicationPath = applicationPath,
+                ServerPath = AppDomain.CurrentDomain.BaseDirectory
+            };
         }
     }
 }

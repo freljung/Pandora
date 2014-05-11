@@ -6,6 +6,8 @@ namespace Pandora
 {
     public interface ISocketListener
     {
+        ServerSettings ServerSettings { get; set; }
+        
         void Start();
         void Stop();
     }
